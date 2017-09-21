@@ -7,14 +7,14 @@ import scrapy
 import logging as log
 import time
 
-from recruit.items import UserItem, PositionItem
-from recruit.settings import QUERY_KEYWORDS
-from recruit.utils import ProgressBar
+from lagou.items import UserItem, PositionItem
+from lagou.settings import QUERY_KEYWORDS
+from lagou.utils import ProgressBar
 
 
 class LagouList(scrapy.Spider):
-    name = 'recruit'
-    allowed_domains = ['recruit.com']
+    name = 'lagou'
+    allowed_domains = ['lagou.com']
     flag = 0
     keyword = QUERY_KEYWORDS[0]  # 默认第一个参数
     # city = "杭州"
@@ -97,7 +97,7 @@ class LagouList(scrapy.Spider):
     def getFromRequest(self, currentPage, totalPage, keyword, city, first):
         # url = 'https://www.lagou.com/jobs/positionAjax.json?city=' + parse.unquote(
         #     city) + '&needAddtionalResult=false&isSchoolJob=0'
-        url = 'https://www.recruit.com/jobs/positionAjax.json'
+        url = 'https://www.lagou.com/jobs/positionAjax.json'
         page = currentPage + 1
         log.info(keyword + "\r")
         if page <= totalPage:
@@ -110,7 +110,7 @@ class LagouList(scrapy.Spider):
                                          formdata={'kd': keyword, 'pn': str(page), 'first': first, 'city': city,
                                                    'needAddtionalResult': 'false', 'isSchoolJob': '0'},
                                          callback=self.parse, dont_filter=True)
-            request.headers.appendlist("Referer", "https://www.recruit.com/jobs/list_" + parse.unquote(
+            request.headers.appendlist("Referer", "https://www.lagou.com/jobs/list_" + parse.unquote(
                 keyword) + "?labelWords=&fromSearch=true&suginput=")
             return request
         else:
