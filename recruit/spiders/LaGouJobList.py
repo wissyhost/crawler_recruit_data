@@ -38,7 +38,7 @@ class LagouList(scrapy.Spider):
             if success:
                 self.fn = 0
                 if self.pageNo == 1 and self.new:
-                    log.error(response.text)
+                    # log.error(response.text)
                     self.totalCount = data['content']['positionResult']['totalCount']  # 从0开始循环
                     self.pageSize = data['content']['pageSize']
                     self.totalNum = math.ceil(self.totalCount / self.pageSize)
