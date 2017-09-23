@@ -7,9 +7,9 @@ import scrapy
 import logging as log
 import time
 
-from lagou.items import UserItem, PositionItem
-from lagou.settings import QUERY_KEYWORDS
-from lagou.utils import ProgressBar
+from recruit.items import UserItem, PositionItem
+from recruit.settings import QUERY_KEYWORDS
+from recruit.utils import ProgressBar
 
 
 class LagouList(scrapy.Spider):
