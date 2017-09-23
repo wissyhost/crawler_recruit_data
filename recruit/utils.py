@@ -12,6 +12,7 @@ class ProgressBar:
         try:
             self.columns = os.get_terminal_size().columns
         except OSError as e:
+            self.columns = None
             pass
 
     def moveTo(self, z):

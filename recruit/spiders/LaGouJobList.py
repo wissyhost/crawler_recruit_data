@@ -19,9 +19,10 @@ class LagouList(scrapy.Spider):
     keyword = QUERY_KEYWORDS[0]  # 默认第一个参数
     # city = "杭州"
     city = "全国"
+    new = True
     # city = "太原"
     pageSize = None
-    pageNo = 0
+    pageNo = 1
     totalCount = None
     totalNum = 0
     fn = 0
@@ -36,8 +37,8 @@ class LagouList(scrapy.Spider):
             success = data['success']
             if success:
                 self.fn = 0
-                self.pageNo = data['content']['pageNo']
-                if self.pageNo == 1:
+                if self.pageNo == 1 and self.new:
+                    log.error(response.text)
                     self.totalCount = data['content']['positionResult']['totalCount']  # 从0开始循环
                     self.pageSize = data['content']['pageSize']
                     self.totalNum = math.ceil(self.totalCount / self.pageSize)
@@ -54,11 +55,23 @@ class LagouList(scrapy.Spider):
                         ui['positionId'] = i
                         ui['keyword'] = self.keyword
                         yield ui
-                    for i in data['content']['positionResult']['result']:
-                        pi = PositionItem(i)
-                        pi['keyword'] = self.keyword
-                        yield pi
-                    yield self.getFromRequest(self.pageNo, self.totalNum, self.keyword, self.city, "false")
+                    if data['content']['positionResult']:
+                        for i in data['content']['positionResult']['result']:
+                            pi = PositionItem(i)
+                            pi['keyword'] = self.keyword
+                            yield pi
+                        self.pageNo = data['content']['pageNo']
+                        if (self.pageNo == 1 and self.new) or self.pageNo != 1:
+                            self.new = False
+                            yield self.getFromRequest(self.pageNo, self.totalNum, self.keyword, self.city, "false")
+                    elif self.flag < len(QUERY_KEYWORDS) - 2:
+                        log.info(self.flag)
+                        log.info(self.flag + 1)
+                        self.flag = self.flag + 1
+                        self.keyword = QUERY_KEYWORDS[self.flag]
+                        self.pageNo = 1
+                        self.new = True
+                        yield self.getFromRequest(0, 2, self.keyword, self.city, "true")
             else:
                 self.fn += 1
                 s = 20 + 5 * self.fn
@@ -84,6 +97,8 @@ class LagouList(scrapy.Spider):
                         self.flag < len(QUERY_KEYWORDS) - 2):
                 self.flag = self.flag + 1
                 self.keyword = QUERY_KEYWORDS[self.flag]
+                self.pageNo = 1
+                self.new = True
                 yield self.getFromRequest(0, 2, self.keyword, self.city, "true")
         except Exception as e:
             log.error(response.text)
